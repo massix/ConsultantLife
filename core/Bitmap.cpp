@@ -65,9 +65,6 @@ Size const& Bitmap::getScaledSize() const {
 }
 
 bool Bitmap::isPositionInBitmapPosition(Position const& other) const {
-	//return ((bitmapPosition.x > other.x > bitmapPosition.x + this->scaled.width) &&
-		//(bitmapPosition.y > other.y > bitmapPosition.y + this->scaled.height));
-
 	bool isX = this->getPosition().x < other.x && other.x < (this->getPosition().x + this->scaled.width);
 	bool isY = this->getPosition().y < other.y && other.y < (this->getPosition().y + this->scaled.height);
 
