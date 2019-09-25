@@ -5,7 +5,6 @@
 #include <exception>
 
 extern "C" {
-	struct ALLEGRO_DISPLAY;
 	struct ALLEGRO_TIMER;
 }
 
@@ -27,7 +26,6 @@ namespace cl {
 			Game& operator=(Game const&) = delete;
 			std::string gameName;
 
-			ALLEGRO_DISPLAY* alDisplay;
 			ALLEGRO_TIMER* alTimer;
 
 			Bitmap* bossBitmap;

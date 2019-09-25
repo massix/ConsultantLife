@@ -4,6 +4,7 @@
 #include <core/Event.h>
 #include <core/EventQueue.h>
 #include <core/InitFailedExc.h>
+#include <core/Display.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_image.h>
@@ -18,7 +19,7 @@ Game::Game(std::string const& gameName) {
 
 Game::~Game() {
 	al_destroy_timer(this->alTimer);
-	al_destroy_display(this->alDisplay);
+	Display::free();
 	delete this->eq;
 	delete this->bossBitmap;
 }
@@ -42,22 +43,18 @@ bool Game::init() {
 
 	this->eq = new EventQueue();
 
-	ALLEGRO_DISPLAY_MODE displayMode;
-	al_get_display_mode(al_get_num_display_modes() - 1, &displayMode);
-	al_set_new_display_flags(ALLEGRO_FULLSCREEN);
-
-	this->alDisplay = al_create_display(displayMode.width, displayMode.height);
+	Display::initFullScreen();
 	this->alTimer = al_create_timer(1.0 / Constants::FPS);
 
-	this->eq->registerEventSource(al_get_display_event_source(this->alDisplay));
+	this->eq->registerEventSource(Display::getEventSource());
 	this->eq->registerEventSource(al_get_timer_event_source(this->alTimer));
 
 	this->bossBitmap = new Bitmap("resources/BossWalking_01.png");
 	this->bossBitmap->scaleWithFactor(5.0);
 
-	al_set_window_title(this->alDisplay, this->gameName.c_str());
+	al_set_window_title(Display::getDisplay(), this->gameName.c_str());
 
-	if (this->alDisplay == nullptr || this->alTimer == nullptr) {
+	if (this->alTimer == nullptr) {
 		throw new InitializationFailed("Impossible to initialize the game.");
 	}
 
@@ -66,15 +63,14 @@ bool Game::init() {
 
 void Game::mainLoop() {
 	al_start_timer(this->alTimer);
-	int32_t displayHeight = al_get_display_height(this->alDisplay);
-	Position bossPosition(8, displayHeight - this->bossBitmap->getScaledSize().height - 10);
+	Position bossPosition(8, Display::getHeight() - this->bossBitmap->getScaledSize().height - 10);
 
 	this->eq->registerForEvent(ALLEGRO_EVENT_TIMER, [&](Event& e) -> void {
 		if (this->eq->isEmpty()) {
-			al_set_target_bitmap(al_get_backbuffer(this->alDisplay));
+			al_set_target_bitmap(al_get_backbuffer(Display::getDisplay()));
 			al_clear_to_color(al_map_rgb(0, 0, 0));
 			this->bossBitmap->draw(bossPosition);
-			al_flip_display();
+			Display::flip();
 		}
 	});
 
@@ -106,7 +102,7 @@ void Game::mainLoop() {
 		if (e.getMouseEvent().button == 1) {
 			Position mousePosition(e.getMouseEvent().x, e.getMouseEvent().y);
 			if (this->bossBitmap->isPositionInBitmapPosition(mousePosition)) {
-				al_show_native_message_box(this->alDisplay, this->getName().c_str(), "Clicked", "TOUCHY!", nullptr, 0);
+				al_show_native_message_box(Display::getDisplay(), this->getName().c_str(), "Clicked", "TOUCHY!", nullptr, 0);
 			}
 		}
 	});
