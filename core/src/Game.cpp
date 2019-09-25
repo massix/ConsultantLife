@@ -3,6 +3,7 @@
 #include <core/Bitmap.h>
 #include <core/Event.h>
 #include <core/EventQueue.h>
+#include <core/InitFailedExc.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_image.h>
@@ -55,7 +56,12 @@ bool Game::init() {
 	this->bossBitmap->scaleWithFactor(5.0);
 
 	al_set_window_title(this->alDisplay, this->gameName.c_str());
-	return (this->alDisplay != nullptr || this->alTimer == nullptr);
+
+	if (this->alDisplay == nullptr || this->alTimer == nullptr) {
+		throw new InitializationFailed("Impossible to initialize the game.");
+	}
+
+	return true;
 }
 
 void Game::mainLoop() {
@@ -63,17 +69,16 @@ void Game::mainLoop() {
 	int32_t displayHeight = al_get_display_height(this->alDisplay);
 	Position bossPosition(8, displayHeight - this->bossBitmap->getScaledSize().height - 10);
 
-	this->eq->registerForEvent(ALLEGRO_EVENT_TIMER, [&bossPosition, this](Event& e) -> void {
+	this->eq->registerForEvent(ALLEGRO_EVENT_TIMER, [&](Event& e) -> void {
 		if (this->eq->isEmpty()) {
 			al_set_target_bitmap(al_get_backbuffer(this->alDisplay));
 			al_clear_to_color(al_map_rgb(0, 0, 0));
-			int32_t displayHeight = al_get_display_height(this->alDisplay);
 			this->bossBitmap->draw(bossPosition);
 			al_flip_display();
 		}
 	});
 
-	this->eq->registerForEvent(ALLEGRO_EVENT_KEY_DOWN, [&bossPosition, this](Event& e) {
+	this->eq->registerForEvent(ALLEGRO_EVENT_KEY_DOWN, [&](Event& e) {
 		switch (e.getKeyboardEvent().keycode) {
 		case ALLEGRO_KEY_ESCAPE:
 			this->eq->endLoop();
@@ -93,11 +98,11 @@ void Game::mainLoop() {
 		}
 	});
 
-	this->eq->registerForEvent(ALLEGRO_EVENT_DISPLAY_CLOSE, [this](Event& e) {
+	this->eq->registerForEvent(ALLEGRO_EVENT_DISPLAY_CLOSE, [&](Event& e) {
 		this->eq->endLoop();
 	});
 
-	this->eq->registerForEvent(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN, [this](Event& e) {
+	this->eq->registerForEvent(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN, [&](Event& e) {
 		if (e.getMouseEvent().button == 1) {
 			Position mousePosition(e.getMouseEvent().x, e.getMouseEvent().y);
 			if (this->bossBitmap->isPositionInBitmapPosition(mousePosition)) {

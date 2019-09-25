@@ -1,11 +1,17 @@
 #include <core/EventQueue.h>
 #include <core/Event.h>
+#include <core/InitFailedExc.h>
 #include <allegro5/allegro.h>
 
 using namespace cl::core;
 
 EventQueue::EventQueue() {
 	this->eq = al_create_event_queue();
+
+	if (this->eq == nullptr) {
+		throw new InitializationFailed("Can't initialize Event Queue :(");
+	}
+
 	this->looping = false;
 	al_register_event_source(this->eq, al_get_keyboard_event_source());
 	al_register_event_source(this->eq, al_get_mouse_event_source());

@@ -2,6 +2,7 @@
 
 #include <core_export.h>
 #include <string>
+#include <exception>
 
 extern "C" {
 	struct ALLEGRO_DISPLAY;
