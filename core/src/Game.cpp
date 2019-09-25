@@ -1,6 +1,7 @@
 #include <core/Game.h>
 #include <core/Constants.h>
 #include <core/Bitmap.h>
+#include <core/Event.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_image.h>
@@ -63,15 +64,15 @@ void Game::mainLoop() {
 	bool redraw = false;
 
 	while (!this->over) {
-		ALLEGRO_EVENT event;
-		al_wait_for_event(this->alEventQueue, &event);
+		Event event;
+		al_wait_for_event(this->alEventQueue, event.getRawEvent());
 
-		switch (event.type) {
+		switch (event.getType()) {
 		case ALLEGRO_EVENT_TIMER:
 			redraw = true;
 			break;
 		case ALLEGRO_EVENT_KEY_DOWN:
-			if (event.keyboard.keycode == ALLEGRO_KEY_ESCAPE) {
+			if (event.getKeyboardEvent().keycode == ALLEGRO_KEY_ESCAPE) {
 				this->over = true;
 			}
 			break;
@@ -79,8 +80,8 @@ void Game::mainLoop() {
 			this->over = true;
 			break;
 		case ALLEGRO_EVENT_MOUSE_BUTTON_DOWN:
-			if (event.mouse.button == 1) {
-				Position mousePosition(event.mouse.x, event.mouse.y);
+			if (event.getMouseEvent().button == 1) {
+				Position mousePosition(event.getMouseEvent().x, event.getMouseEvent().y);
 				std::cout << "Clicked @ " << std::string(mousePosition) << std::endl;
 				std::cout << "Boss @ " << std::string(this->bossBitmap->getPosition()) << std::endl;
 				std::cout << "Boss @ " << std::string(this->bossBitmap->getScaledSize()) << std::endl;

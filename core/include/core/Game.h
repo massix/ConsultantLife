@@ -2,7 +2,6 @@
 
 #include <core_export.h>
 #include <string>
-#include <core/Bitmap.h>
 
 extern "C" {
 	struct ALLEGRO_DISPLAY;
@@ -13,6 +12,8 @@ extern "C" {
 
 namespace cl {
 	namespace core {
+		class Bitmap;
+
 		class CORE_EXPORT Game {
 		public:
 			Game(std::string const&);
