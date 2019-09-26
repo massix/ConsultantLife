@@ -5,4 +5,4 @@ include(DeclareNewSharedLibrary)
 declare_new_shared_library(core)
 
 find_package(allegro CONFIG REQUIRED)
-target_link_libraries(core allegro allegro::dialog allegro::image)
+target_link_libraries(core allegro allegro::dialog allegro::image allegro::font allegro::ttf)

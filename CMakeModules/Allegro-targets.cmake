@@ -48,7 +48,7 @@ set(_IMPORT_PREFIX "${PROJECT_SOURCE_DIR}/vcpkg/installed/${VCPKG_TARGET_TRIPLET
 add_library(allegro SHARED IMPORTED)
 
 # Create imported targets for all the allegro dependencies
-set(allegro_MODULES "image" "main" "dialog")
+set(allegro_MODULES "image" "main" "dialog" "font" "ttf")
 foreach(al_module ${allegro_MODULES})
 	add_library(allegro::${al_module} SHARED IMPORTED)
 endforeach()
