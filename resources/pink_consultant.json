@@ -1,0 +1,45 @@
+{
+  "name": "Basic Character",
+  "description": "Spritesheet for the most basic consultant around",
+  "format": "spritesheet",
+  "file": "resources/pink_consultant.png",
+  "parameters": {
+    "nature": "animations",
+    "x_starts_at": 0,
+    "y_starts_at": 0,
+    "x_distance": 64,
+    "y_distance": 64,
+    "padding": 1,
+    "split": "line",
+    "animations": [
+      {
+        "name": "back_stand",
+        "frames": 7
+      },
+      {
+        "name": "diagonal_bl_stand",
+        "frames": 7
+      },
+      {
+        "name": "front_stand",
+        "frames": 7
+      },
+      {
+        "name": "diagonal_br_stand",
+        "frames": 7
+      },
+      {
+        "name": "ignore",
+        "frames": 0
+      },
+      {
+        "name": "ignore",
+        "frames": 0
+      },
+      {
+        "name": "fake_shoot",
+        "frames": 8
+      }
+    ]
+  }
+}

@@ -9,7 +9,6 @@ int main(int argc, char *argv[]) {
 	test();
 	core::Game g(std::string("ConsultantLife"));
 	if (g.init()) {
-		std::cout << "Starting " << g.getName() << std::endl;
 		g.mainLoop();
 	}
 

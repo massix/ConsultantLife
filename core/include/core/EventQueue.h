@@ -1,5 +1,6 @@
 #pragma once
 
+#include <core_export.h>
 #include <functional>
 #include <map>
 #include <vector>
@@ -15,7 +16,7 @@ namespace cl {
 	namespace core {
 		class Event;
 
-		class EventQueue {
+		class CORE_EXPORT EventQueue {
 		public:
 			EventQueue();
 			virtual ~EventQueue();

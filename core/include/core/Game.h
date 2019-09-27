@@ -6,10 +6,6 @@
 
 namespace cl {
 	namespace core {
-		class Bitmap;
-		class EventQueue;
-		class Timer;
-
 		class CORE_EXPORT Game {
 		public:
 			Game(std::string const&);
@@ -22,10 +18,6 @@ namespace cl {
 			Game(Game const&) = delete;
 			Game& operator=(Game const&) = delete;
 			std::string gameName;
-
-			Timer* timer;
-			Bitmap* bossBitmap;
-			EventQueue* eq;
 		};
 	}
 }

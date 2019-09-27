@@ -6,6 +6,7 @@
 #include <core/InitFailedExc.h>
 #include <core/Display.h>
 #include <core/Timer.h>
+#include <core/SpriteSheet.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_image.h>
@@ -15,18 +16,17 @@
 #include <iostream>
 #include <sstream>
 #include <algorithm>
+#include <fstream>
+#include <json11.hpp>
+
 
 using namespace cl::core;
 
-Game::Game(std::string const& gameName) {
-	this->gameName = gameName;
+Game::Game(std::string const& gameName) : gameName(gameName) {
 }
 
 Game::~Game() {
 	Display::free();
-	delete this->eq;
-	delete this->bossBitmap;
-	delete this->timer;
 }
 
 bool Game::init() {
@@ -54,25 +54,27 @@ bool Game::init() {
 		return false;
 	}
 
-	this->eq = new EventQueue();
-
-	Display::initFullScreen();
-	this->timer = new Timer(1.0 / Constants::FPS);
-
-	this->eq->registerEventSource(Display::getEventSource());
-	this->eq->registerEventSource(timer->getEventSource());
-
-	this->bossBitmap = new Bitmap("resources/BossWalking_01.png");
-	this->bossBitmap->scaleWithFactor(5.0);
-
+	Display::init(1024, 768);
 	al_set_window_title(Display::getDisplay(), this->gameName.c_str());
-
 	return true;
 }
 
 void Game::mainLoop() {
-	this->timer->start();
-	Position bossPosition(8, Display::getHeight() - this->bossBitmap->getScaledSize().height - 10);
+	Timer mainTimer(1.0 / Constants::FPS);
+	Timer animationTimer(1.0 / Constants::ANIMATIONSFPS);
+	EventQueue eq;
+	SpriteSheet basicConsultant("resources/basic_character.json");
+	SpriteSheet pinkConsultant("resources/pink_consultant.json");
+	Bitmap bossBitmap("resources/BossWalking_01.png");
+	
+	bossBitmap.scaleWithFactor(5.0);
+	basicConsultant.load();
+	pinkConsultant.load();
+	
+	eq.registerEventSource(Display::getEventSource());
+	eq.registerEventSource(mainTimer.getEventSource());
+	eq.registerEventSource(animationTimer.getEventSource());
+
 
 	ALLEGRO_FONT* font = al_load_ttf_font("resources/yoster.ttf", 64, 0);
 	ALLEGRO_FONT* debugFont = al_load_ttf_font("resources/Atarian.ttf", 32, 0);
@@ -90,75 +92,95 @@ void Game::mainLoop() {
 		unsigned char blue = 0;
 	} debugColor;
 
-	this->eq->registerForEvent(ALLEGRO_EVENT_TIMER, [&](Event& e) -> void {
-		std::ostringstream str;
-		str << "Debug - Shift=" << heldKeys.shiftKey << ", R=" << heldKeys.rKey << ", G=" << heldKeys.gKey << ", B=" << heldKeys.bKey << "  ";
-		str << "RGB(" << float(debugColor.red) << ", " << float(debugColor.green) << ", " << float(debugColor.blue) << ") ";
-		str << "Timer: " << e.getRawEvent()->timer.count;
-		float deltaR = 0;
-		float deltaG = 0;
-		float deltaB = 0;
 
-		if (!heldKeys.rKey) deltaR = 0;
-		if (!heldKeys.gKey) deltaG = 0;
-		if (!heldKeys.bKey) deltaB = 0;
+	Animation const& basicFakeShoot = basicConsultant.getAnimation("fake_shoot");
+	uint32_t basicCurrentFrame = 0;
 
-		if (heldKeys.rKey && heldKeys.shiftKey) {
-			deltaR = -1.0;
-		}
-		if (heldKeys.rKey && !heldKeys.shiftKey) {
-			deltaR = +1.0;
-		}
-		if (heldKeys.gKey && heldKeys.shiftKey) {
-			deltaG = -1.0;
-		}
-		if (heldKeys.gKey && !heldKeys.shiftKey) {
-			deltaG = +1.0;
-		}
-		if (heldKeys.bKey && heldKeys.shiftKey) {
-			deltaB = -1.0;
-		}
-		if (heldKeys.bKey && !heldKeys.shiftKey) {
-			deltaB = +1.0;
-		}
+	Animation const& pinkStand = pinkConsultant.getAnimation("front_stand");
+	uint32_t pinkCurrentFrame = 0;
 
-		if (e.getRawEvent()->timer.count % 5 == 0) {
-			debugColor.green += deltaG;
-			debugColor.red += deltaR;
-			debugColor.blue += deltaB;
-		}
+	Position bossPosition(8, Display::getHeight() - bossBitmap.getScaledSize().height - 10);
+	Position textPosition{ bossPosition.x + (int32_t) bossBitmap.getScaledSize().width, 
+		bossPosition.y + (int32_t) (bossBitmap.getScaledSize().height / 2) - 32 };
 
-		if (debugColor.green > 250) debugColor.green = 250;
-		if (debugColor.green < 10) debugColor.green = 10;
-		if (debugColor.red > 250) debugColor.red = 250;
-		if (debugColor.red < 10) debugColor.red = 10;
-		if (debugColor.blue > 250) debugColor.blue = 250;
-		if (debugColor.blue < 10) debugColor.blue = 10;
+	eq.registerForEvent(ALLEGRO_EVENT_TIMER, [&](Event& e) {
+		if (mainTimer == e.getRawEvent()->timer.source) {
+			std::ostringstream str;
+			str << "Debug - Shift=" << heldKeys.shiftKey << ", R=" << heldKeys.rKey << ", G=" << heldKeys.gKey << ", B=" << heldKeys.bKey << "  ";
+			str << "RGB(" << float(debugColor.red) << ", " << float(debugColor.green) << ", " << float(debugColor.blue) << ") ";
+			str << "Timer: " << e.getRawEvent()->timer.count;
+			float deltaR = 0;
+			float deltaG = 0;
+			float deltaB = 0;
 
-		if (this->eq->isEmpty()) {
-			al_set_target_bitmap(al_get_backbuffer(Display::getDisplay()));
-			al_clear_to_color(al_map_rgb(0, 0, 0));
-			al_draw_text(font, 
-				al_map_rgb(255, 0, 0), 
-				bossPosition.x + this->bossBitmap->getScaledSize().width, 
-				bossPosition.y + (this->bossBitmap->getScaledSize().height / 2) - 32, 
-				0, 
-				this->getName().c_str());
-			al_draw_text(debugFont,
-				al_map_rgb(debugColor.red, debugColor.green, debugColor.blue),
-				10,
-				10,
-				0,
-				str.str().c_str());
-			this->bossBitmap->draw(bossPosition);
-			Display::flip();
+			if (!heldKeys.rKey) deltaR = 0;
+			if (!heldKeys.gKey) deltaG = 0;
+			if (!heldKeys.bKey) deltaB = 0;
+
+			if (heldKeys.rKey && heldKeys.shiftKey) {
+				deltaR = -1.0;
+			}
+			if (heldKeys.rKey && !heldKeys.shiftKey) {
+				deltaR = +1.0;
+			}
+			if (heldKeys.gKey && heldKeys.shiftKey) {
+				deltaG = -1.0;
+			}
+			if (heldKeys.gKey && !heldKeys.shiftKey) {
+				deltaG = +1.0;
+			}
+			if (heldKeys.bKey && heldKeys.shiftKey) {
+				deltaB = -1.0;
+			}
+			if (heldKeys.bKey && !heldKeys.shiftKey) {
+				deltaB = +1.0;
+			}
+
+			if (e.getRawEvent()->timer.count % 5 == 0) {
+				debugColor.green += deltaG;
+				debugColor.red += deltaR;
+				debugColor.blue += deltaB;
+			}
+
+			if (debugColor.green > 250) debugColor.green = 250;
+			if (debugColor.green < 10) debugColor.green = 10;
+			if (debugColor.red > 250) debugColor.red = 250;
+			if (debugColor.red < 10) debugColor.red = 10;
+			if (debugColor.blue > 250) debugColor.blue = 250;
+			if (debugColor.blue < 10) debugColor.blue = 10;
+
+			if (eq.isEmpty()) {
+				al_set_target_bitmap(al_get_backbuffer(Display::getDisplay()));
+				al_clear_to_color(al_map_rgb(0, 0, 0));
+				al_draw_text(font,
+							 al_map_rgb(255, 0, 0),
+							 textPosition.x,
+							 textPosition.y,
+							 0,
+							 this->getName().c_str());
+				al_draw_text(debugFont,
+							 al_map_rgb(debugColor.red, debugColor.green, debugColor.blue),
+							 10,
+							 10,
+							 0,
+							 str.str().c_str());
+
+				bossBitmap.draw(bossPosition);
+
+				basicConsultant.drawFrame("fake_shoot", basicCurrentFrame, Position{ 48, 48 });
+				pinkConsultant.drawFrame("front_stand", pinkCurrentFrame, Position{ 48, 126 });
+				Display::flip();
+			}
+		} else if (animationTimer == e.getRawEvent()->timer.source) {
+			basicCurrentFrame = (basicCurrentFrame + 1) % basicFakeShoot.getFrames();
+			pinkCurrentFrame = (pinkCurrentFrame + 1) % pinkStand.getFrames();
 		}
 	});
 
-	this->eq->registerForEvent(ALLEGRO_EVENT_KEY_DOWN, [&](Event& e) {
+	eq.registerForEvent(ALLEGRO_EVENT_KEY_DOWN, [&](Event& e) {
 		switch (e.getKeyboardEvent().keycode) {
 		case ALLEGRO_KEY_ESCAPE:
-			this->eq->endLoop();
+			eq.endLoop();
 			break;
 		case ALLEGRO_KEY_UP:
 			bossPosition.y -= 5;
@@ -187,7 +209,7 @@ void Game::mainLoop() {
 		}
 	});
 
-	this->eq->registerForEvent(ALLEGRO_EVENT_KEY_UP, [&](Event& e) {
+	eq.registerForEvent(ALLEGRO_EVENT_KEY_UP, [&](Event& e) {
 		switch (e.getKeyboardEvent().keycode) {
 		case ALLEGRO_KEY_LSHIFT:
 			heldKeys.shiftKey = false;
@@ -204,20 +226,26 @@ void Game::mainLoop() {
 		}
 	});
 
-	this->eq->registerForEvent(ALLEGRO_EVENT_DISPLAY_CLOSE, [&](Event& e) {
-		this->eq->endLoop();
+	eq.registerForEvent(ALLEGRO_EVENT_DISPLAY_CLOSE, [&](Event& e) {
+		eq.endLoop();
 	});
 
-	this->eq->registerForEvent(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN, [&](Event& e) {
+	eq.registerForEvent(ALLEGRO_EVENT_MOUSE_BUTTON_DOWN, [&](Event& e) {
 		if (e.getMouseEvent().button == 1) {
 			Position mousePosition(e.getMouseEvent().x, e.getMouseEvent().y);
-			if (this->bossBitmap->isPositionInBitmapPosition(mousePosition)) {
-				al_show_native_message_box(Display::getDisplay(), this->getName().c_str(), "Clicked", "TOUCHY!", nullptr, 0);
+			if (bossBitmap.isPositionInBitmapPosition(mousePosition)) {
+				if (animationTimer.isRunning()) {
+					animationTimer.stop();
+				} else {
+					animationTimer.start();
+				}
 			}
 		}
 	});
 
-	this->eq->startLoop();
+	mainTimer.start();
+	animationTimer.start();
+	eq.startLoop();
 }
 
 std::string const& Game::getName() const {

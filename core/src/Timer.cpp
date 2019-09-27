@@ -17,10 +17,12 @@ ALLEGRO_EVENT_SOURCE* Timer::getEventSource() {
 
 void Timer::start() {
 	al_start_timer(this->timer);
+	running = true;
 }
 
 void Timer::stop() {
 	al_stop_timer(this->timer);
+	running = false;
 }
 
 bool Timer::operator==(ALLEGRO_TIMER* t) {
@@ -33,4 +35,8 @@ bool Timer::operator==(Timer const& t) {
 
 Timer::operator ALLEGRO_TIMER* () {
 	return this->timer;
+}
+
+bool Timer::isRunning() {
+	return running;
 }

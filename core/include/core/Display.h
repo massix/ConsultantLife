@@ -1,4 +1,5 @@
 #pragma once
+#include <core_export.h>
 
 
 extern "C" {
@@ -8,7 +9,7 @@ extern "C" {
 
 namespace cl {
 	namespace core {
-		class Display {
+		class CORE_EXPORT Display {
 		public:
 			static void init(int w, int h);
 			static void initFullScreen();
