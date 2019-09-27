@@ -5,6 +5,7 @@
 #include <core/EventQueue.h>
 #include <core/InitFailedExc.h>
 #include <core/Display.h>
+#include <core/Timer.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_image.h>
@@ -22,10 +23,10 @@ Game::Game(std::string const& gameName) {
 }
 
 Game::~Game() {
-	al_destroy_timer(this->alTimer);
 	Display::free();
 	delete this->eq;
 	delete this->bossBitmap;
+	delete this->timer;
 }
 
 bool Game::init() {
@@ -56,25 +57,21 @@ bool Game::init() {
 	this->eq = new EventQueue();
 
 	Display::initFullScreen();
-	this->alTimer = al_create_timer(1.0 / Constants::FPS);
+	this->timer = new Timer(1.0 / Constants::FPS);
 
 	this->eq->registerEventSource(Display::getEventSource());
-	this->eq->registerEventSource(al_get_timer_event_source(this->alTimer));
+	this->eq->registerEventSource(timer->getEventSource());
 
 	this->bossBitmap = new Bitmap("resources/BossWalking_01.png");
 	this->bossBitmap->scaleWithFactor(5.0);
 
 	al_set_window_title(Display::getDisplay(), this->gameName.c_str());
 
-	if (this->alTimer == nullptr) {
-		throw new InitializationFailed("Impossible to initialize the game.");
-	}
-
 	return true;
 }
 
 void Game::mainLoop() {
-	al_start_timer(this->alTimer);
+	this->timer->start();
 	Position bossPosition(8, Display::getHeight() - this->bossBitmap->getScaledSize().height - 10);
 
 	ALLEGRO_FONT* font = al_load_ttf_font("resources/yoster.ttf", 64, 0);

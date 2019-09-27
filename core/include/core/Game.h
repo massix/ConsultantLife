@@ -4,14 +4,11 @@
 #include <string>
 #include <exception>
 
-extern "C" {
-	struct ALLEGRO_TIMER;
-}
-
 namespace cl {
 	namespace core {
 		class Bitmap;
 		class EventQueue;
+		class Timer;
 
 		class CORE_EXPORT Game {
 		public:
@@ -26,8 +23,7 @@ namespace cl {
 			Game& operator=(Game const&) = delete;
 			std::string gameName;
 
-			ALLEGRO_TIMER* alTimer;
-
+			Timer* timer;
 			Bitmap* bossBitmap;
 			EventQueue* eq;
 		};
