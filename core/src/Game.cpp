@@ -75,7 +75,6 @@ void Game::mainLoop() {
 	eq.registerEventSource(mainTimer.getEventSource());
 	eq.registerEventSource(animationTimer.getEventSource());
 
-
 	ALLEGRO_FONT* font = al_load_ttf_font("resources/yoster.ttf", 64, 0);
 	ALLEGRO_FONT* debugFont = al_load_ttf_font("resources/Atarian.ttf", 32, 0);
 
@@ -93,11 +92,11 @@ void Game::mainLoop() {
 	} debugColor;
 
 
-	Animation const& basicFakeShoot = basicConsultant.getAnimation("fake_shoot");
-	uint32_t basicCurrentFrame = 0;
+	Animation const& hisAnimation = basicConsultant.getAnimation("wave_left");
+	uint32_t hisCurrentFrame = 0;
 
-	Animation const& pinkStand = pinkConsultant.getAnimation("front_stand");
-	uint32_t pinkCurrentFrame = 0;
+	Animation const& herAnimation = pinkConsultant.getAnimation("wave_right");
+	uint32_t herCurrentFrame = 0;
 
 	Position bossPosition(8, Display::getHeight() - bossBitmap.getScaledSize().height - 10);
 	Position textPosition{ bossPosition.x + (int32_t) bossBitmap.getScaledSize().width, 
@@ -166,14 +165,13 @@ void Game::mainLoop() {
 							 str.str().c_str());
 
 				bossBitmap.draw(bossPosition);
-
-				basicConsultant.drawFrame(basicFakeShoot, basicCurrentFrame, Position{ 48, 48 });
-				pinkConsultant.drawFrame(pinkStand, pinkCurrentFrame, Position{ 48, 126 });
+				pinkConsultant.drawFrame(herAnimation, herCurrentFrame, Position{ 48, 48 });
+				basicConsultant.drawFrame(hisAnimation, hisCurrentFrame, Position{ 89, 48 });
 				Display::flip();
 			}
 		} else if (animationTimer == e.getRawEvent()->timer.source) {
-			basicCurrentFrame = (basicCurrentFrame + 1) % basicFakeShoot.getFrames();
-			pinkCurrentFrame = (pinkCurrentFrame + 1) % pinkStand.getFrames();
+			hisCurrentFrame = (hisCurrentFrame + 1) % hisAnimation.getFrames();
+			herCurrentFrame = (herCurrentFrame + 1) % herAnimation.getFrames();
 		}
 	});
 

@@ -1,6 +1,6 @@
 {
-  "name": "Basic Character",
-  "description": "Spritesheet for the most basic consultant around",
+  "name": "Pink Consultant",
+  "description": "Spritesheet for a consultant with pink hair",
   "format": "spritesheet",
   "file": "resources/pink_consultant.png",
   "parameters": {
@@ -13,32 +13,88 @@
     "split": "line",
     "animations": [
       {
-        "name": "back_stand",
+        "name": "stand_up",
         "frames": 7
       },
       {
-        "name": "diagonal_bl_stand",
+        "name": "stand_left",
         "frames": 7
       },
       {
-        "name": "front_stand",
+        "name": "stand_down",
         "frames": 7
       },
       {
-        "name": "diagonal_br_stand",
+        "name": "stand_right",
         "frames": 7
       },
       {
-        "name": "ignore",
-        "frames": 0
-      },
-      {
-        "name": "ignore",
-        "frames": 0
-      },
-      {
-        "name": "fake_shoot",
+        "name": "shoot_up",
         "frames": 8
+      },
+      {
+        "name": "shoot_left",
+        "frames": 8
+      },
+      {
+        "name": "shoot_down",
+        "frames": 8
+      },
+      {
+        "name": "shoot_right",
+        "frames": 8
+      },
+      {
+        "name": "walk_up",
+        "frames": 9
+      },
+      {
+        "name": "walk_left",
+        "frames": 9
+      },
+      {
+        "name": "walk_down",
+        "frames": 9
+      },
+      {
+        "name": "walk_right",
+        "frames": 9
+      },
+      {
+        "name": "wave_up",
+        "frames": 6
+      },
+      {
+        "name": "wave_left",
+        "frames": 6
+      },
+      {
+        "name": "wave_down",
+        "frames": 6
+      },
+      {
+        "name": "wave_right",
+        "frames": 6
+      },
+      {
+        "name": "bow_up",
+        "frames": 13
+      },
+      {
+        "name": "bow_left",
+        "frames": 13
+      },
+      {
+        "name": "bow_down",
+        "frames": 13
+      },
+      {
+        "name": "bow_right",
+        "frames": 13
+      },
+      {
+        "name": "fall",
+        "frames": 6
       }
     ]
   }
