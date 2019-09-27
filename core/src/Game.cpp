@@ -167,8 +167,8 @@ void Game::mainLoop() {
 
 				bossBitmap.draw(bossPosition);
 
-				basicConsultant.drawFrame("fake_shoot", basicCurrentFrame, Position{ 48, 48 });
-				pinkConsultant.drawFrame("front_stand", pinkCurrentFrame, Position{ 48, 126 });
+				basicConsultant.drawFrame(basicFakeShoot, basicCurrentFrame, Position{ 48, 48 });
+				pinkConsultant.drawFrame(pinkStand, pinkCurrentFrame, Position{ 48, 126 });
 				Display::flip();
 			}
 		} else if (animationTimer == e.getRawEvent()->timer.source) {

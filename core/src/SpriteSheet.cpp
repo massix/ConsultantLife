@@ -14,7 +14,8 @@ SpriteSheet::SpriteSheet(std::string const& fileName) :
 	jsonFilename(fileName),
 	json(nullptr), 
 	parameters(nullptr),
-	bitmap(nullptr) 
+	bitmap(nullptr),
+	scaleFactor(1.0)
 {
 
 }
@@ -95,18 +96,29 @@ Animation const& SpriteSheet::getAnimation(std::string const& animationName) {
 }
 
 void SpriteSheet::drawFrame(std::string const& animationName, uint8_t frame, Position const& position) {
-	Animation const& animation = getAnimation(animationName);
+	drawFrame(getAnimation(animationName), frame, position);
+}
+
+void SpriteSheet::drawFrame(Animation const& animation, uint8_t frame, Position const& position) {
 	uint32_t xStart = getParameters()->getXStart() + (frame * getParameters()->getXDistance());
 	uint32_t yStart = getParameters()->getYStart() + (animation.getIndex() * getParameters()->getYDistance());
 
-	al_draw_bitmap_region(bitmap, 
-						  xStart, 
-						  yStart, 
-						  getParameters()->getXDistance(), 
-						  getParameters()->getYDistance(), 
-						  position.x, 
-						  position.y, 
+	al_draw_bitmap_region(bitmap,
+						  xStart,
+						  yStart,
+						  getParameters()->getXDistance(),
+						  getParameters()->getYDistance(),
+						  position.x,
+						  position.y,
 						  0);
+}
+
+void SpriteSheet::setScaleFactor(float scale) {
+	scaleFactor = scale;
+}
+
+void SpriteSheet::resetScale() {
+	scaleFactor = 1.0;
 }
 
 Parameters const* SpriteSheet::getParameters() const {

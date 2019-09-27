@@ -91,12 +91,16 @@ namespace cl {
 			Parameters const* getParameters() const;
 			Animation const& getAnimation(std::string const&);
 			void drawFrame(std::string const& animationName, uint8_t frame, Position const& position);
+			void drawFrame(Animation const& animation, uint8_t frame, Position const& position);
+			void setScaleFactor(float scaleFactor);
+			void resetScale();
 
 		private:
 			std::string jsonFilename;
 			json11::Json* json;
 			Parameters* parameters;
 			ALLEGRO_BITMAP* bitmap;
+			float scaleFactor;
 		};
 	}
 }
