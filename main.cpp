@@ -7,7 +7,7 @@ using namespace cl;
 
 int main(int argc, char *argv[]) {
 	test();
-	core::Game g(std::string("ConsultantLife"));
+	core::Game g(std::string("LETAN"));
 	if (g.init()) {
 		g.mainLoop();
 	}

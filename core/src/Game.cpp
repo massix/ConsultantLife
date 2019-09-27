@@ -92,10 +92,12 @@ void Game::mainLoop() {
 	} debugColor;
 
 
-	Animation const& hisAnimation = basicConsultant.getAnimation("wave_left");
-	uint32_t hisCurrentFrame = 0;
+	auto const& herAnimations = pinkConsultant.getParameters()->getAnimations();
+	auto const& hisAnimations = basicConsultant.getParameters()->getAnimations();
 
-	Animation const& herAnimation = pinkConsultant.getAnimation("wave_right");
+	int8_t hisIndex = 0;
+	int8_t herIndex = 0;
+	uint32_t hisCurrentFrame = 0;
 	uint32_t herCurrentFrame = 0;
 
 	Position bossPosition(8, Display::getHeight() - bossBitmap.getScaledSize().height - 10);
@@ -104,10 +106,17 @@ void Game::mainLoop() {
 
 	eq.registerForEvent(ALLEGRO_EVENT_TIMER, [&](Event& e) {
 		if (mainTimer == e.getRawEvent()->timer.source) {
-			std::ostringstream str;
-			str << "Debug - Shift=" << heldKeys.shiftKey << ", R=" << heldKeys.rKey << ", G=" << heldKeys.gKey << ", B=" << heldKeys.bKey << "  ";
-			str << "RGB(" << float(debugColor.red) << ", " << float(debugColor.green) << ", " << float(debugColor.blue) << ") ";
-			str << "Timer: " << e.getRawEvent()->timer.count;
+			std::ostringstream debugStringTop;
+			debugStringTop << "Debug - Shift=" << heldKeys.shiftKey << ", R=" << heldKeys.rKey << ", G=" << heldKeys.gKey << ", B=" << heldKeys.bKey << "  ";
+			debugStringTop << "RGB(" << float(debugColor.red) << ", " << float(debugColor.green) << ", " << float(debugColor.blue) << ") ";
+			debugStringTop << "Timer: " << e.getRawEvent()->timer.count;
+
+			std::ostringstream debugStringHim;
+			debugStringHim << "His current animation: " << hisAnimations[hisIndex].getName() << "(" << (int) hisIndex << ")";
+
+			std::ostringstream debugStringHer;
+			debugStringHer << "Her current animation: " << herAnimations[herIndex].getName() << "(" << (int) herIndex << ")";
+
 			float deltaR = 0;
 			float deltaG = 0;
 			float deltaB = 0;
@@ -162,16 +171,28 @@ void Game::mainLoop() {
 							 10,
 							 10,
 							 0,
-							 str.str().c_str());
+							 debugStringTop.str().c_str());
+				al_draw_text(debugFont,
+							 al_map_rgb(debugColor.red, debugColor.green, debugColor.blue),
+							 10,
+							 44,
+							 0,
+							 debugStringHim.str().c_str());
+				al_draw_text(debugFont,
+							 al_map_rgb(debugColor.red, debugColor.green, debugColor.blue),
+							 10,
+							 77,
+							 0,
+							 debugStringHer.str().c_str());
 
 				bossBitmap.draw(bossPosition);
-				pinkConsultant.drawFrame(herAnimation, herCurrentFrame, Position{ 48, 48 });
-				basicConsultant.drawFrame(hisAnimation, hisCurrentFrame, Position{ 89, 48 });
+				pinkConsultant.drawFrame(herAnimations[herIndex], herCurrentFrame, Position{ 48, 200 });
+				basicConsultant.drawFrame(hisAnimations[hisIndex], hisCurrentFrame, Position{ 140, 200 });
 				Display::flip();
 			}
 		} else if (animationTimer == e.getRawEvent()->timer.source) {
-			hisCurrentFrame = (hisCurrentFrame + 1) % hisAnimation.getFrames();
-			herCurrentFrame = (herCurrentFrame + 1) % herAnimation.getFrames();
+			hisCurrentFrame = (hisCurrentFrame + 1) % hisAnimations[hisIndex].getFrames();
+			herCurrentFrame = (herCurrentFrame + 1) % herAnimations[herIndex].getFrames();
 		}
 	});
 
@@ -203,6 +224,43 @@ void Game::mainLoop() {
 			break;
 		case ALLEGRO_KEY_B:
 			heldKeys.bKey = true;
+			break;
+
+		// I'm not making the following lines better as this is throwaway code.
+		case ALLEGRO_KEY_Q:
+			if (heldKeys.shiftKey) {
+				if ((hisIndex - 1) < 0) {
+					hisIndex = hisAnimations.size() - 1;
+				} else {
+					hisIndex--;
+				}
+			}
+			else {
+				if ((hisIndex + 1) >= hisAnimations.size()) {
+					hisIndex = 0;
+				} else {
+					hisIndex++;
+				}
+			}
+
+			hisCurrentFrame = 0;
+			break;
+		case ALLEGRO_KEY_W:
+			if (heldKeys.shiftKey) {
+				if (herIndex - 1 < 0) {
+					herIndex = herAnimations.size() - 1;
+				} else {
+					herIndex--;
+				}
+			} else {
+				if (herIndex + 1 >= herAnimations.size()) {
+					herIndex = 0;
+				} else {
+					herIndex++;
+				}
+			}
+
+			herCurrentFrame = 0;
 			break;
 		}
 	});
