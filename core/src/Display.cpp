@@ -24,6 +24,10 @@ void Display::initFullScreen() {
 	}
 }
 
+void Display::setTarget() {
+	al_set_target_bitmap(al_get_backbuffer(Display::getDisplay()));
+}
+
 ALLEGRO_DISPLAY* Display::getDisplay() {
 	return display;
 }

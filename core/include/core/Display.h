@@ -18,6 +18,7 @@ namespace cl {
 			static ALLEGRO_EVENT_SOURCE* getEventSource();
 			static int32_t getWidth();
 			static int32_t getHeight();
+			static void setTarget();
 			
 			static ALLEGRO_DISPLAY* getDisplay();
 

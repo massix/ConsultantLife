@@ -8,17 +8,13 @@ protected:
 	TileMapTest() {
 		al_init();
 		al_init_image_addon();
-	}
-
-	void SetUp() override {
 		t = new cl::core::TileMap("resources/sophia_small.json");
 		t->load();
+
 	}
 
-	void TearDown() override {
-		if (t != nullptr) {
-			delete t;
-		}
+	virtual ~TileMapTest() {
+		delete t;
 	}
 
 	cl::core::TileMap* t;
@@ -54,6 +50,16 @@ TEST_F(TileMapTest, testLayerDetails) {
 	// Check the last bits
 	EXPECT_EQ(baseData[baseData.size() - 1], 29);
 	EXPECT_EQ(baseData[baseData.size() - 8], 464);
+}
+
+TEST_F(TileMapTest, testTileSet) {
+	cl::core::TileSet const& tileSet = t->getTileSets().front();
+
+	EXPECT_EQ(tileSet.getImageFile(), "resources/tilemap.png");
+	EXPECT_EQ(tileSet.getFirstGid(), 1);
+	EXPECT_EQ(tileSet.getTilesCount(), 486);
+	EXPECT_EQ(tileSet.getTileHeight(), 16);
+	EXPECT_EQ(tileSet.getTileWidth(), 16);
 }
 
 TEST_F(TileMapTest, testBasicDetails) {

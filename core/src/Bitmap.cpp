@@ -4,69 +4,99 @@
 
 using namespace cl::core;
 
-Bitmap::Bitmap(std::string const& filename) {
-	this->filename = filename;
+Bitmap::Bitmap(std::string const& filename) : filename(filename), owner(true) {
+	bitmap = al_load_bitmap(filename.c_str());
+	original.width = al_get_bitmap_width(bitmap);
+	original.height = al_get_bitmap_height(bitmap);
 
-	this->bitmap = al_load_bitmap(this->filename.c_str());
-	this->original.width = al_get_bitmap_width(this->bitmap);
-	this->original.height = al_get_bitmap_height(this->bitmap);
+	scaled.height = original.height;
+	scaled.width = original.width;
+}
 
-	this->scaled.height = this->original.height;
-	this->scaled.width = this->original.width;
+Bitmap::Bitmap(uint32_t w, uint32_t h) : owner(true) {
+	bitmap = al_create_bitmap(w, h);
+
+	original.width = w;
+	original.height = h;
+
+	scaled.width = w;
+	scaled.height = h;
+}
+
+Bitmap::Bitmap(ALLEGRO_BITMAP* bitmap) : owner(false), bitmap(bitmap) {
+	original.width = al_get_bitmap_width(bitmap);
+	original.height = al_get_bitmap_height(bitmap);
+
+	scaled.width = original.width;
+	scaled.height = original.height;
+}
+
+void Bitmap::setOwner(bool isOwner) {
+	owner = isOwner;
+}
+
+bool Bitmap::isOwner() const {
+	return owner;
 }
 
 Bitmap::~Bitmap() {
-	al_destroy_bitmap(this->bitmap);
+	if (isOwner() && bitmap != nullptr) {
+		al_destroy_bitmap(bitmap);
+	}
 }
 
 ALLEGRO_BITMAP* Bitmap::getRaw() {
-	return this->bitmap;
+	return bitmap;
 }
 
 void Bitmap::scale(uint32_t newWidth, uint32_t newHeight) {
-	this->scaled.width = newWidth;
-	this->scaled.height = newHeight;
+	scaled.width = newWidth;
+	scaled.height = newHeight;
 }
 
 void Bitmap::scaleWithFactor(float factor) {
-	this->scaled.height = this->original.height * factor;
-	this->scaled.width = this->original.width * factor;
+	scaled.height = original.height * factor;
+	scaled.width = original.width * factor;
 }
 
-void Bitmap::setPosition(Position const& position) {
-	this->position = position;
+void Bitmap::setPosition(Position const& newPosition) {
+	position = newPosition;
 }
 
 void Bitmap::draw(Position const& newPosition) {
-	this->setPosition(newPosition);
-	if (this->scaled.width != this->original.width || this->scaled.height != this->original.height) {
-		al_draw_scaled_bitmap(this->bitmap,
+	setPosition(newPosition);
+	if (scaled.width != original.width || scaled.height != original.height) {
+		al_draw_scaled_bitmap(bitmap,
 			0, 0,
-			this->original.width, this->original.height,
-			this->getPosition().x, this->getPosition().y,
-			this->scaled.width, this->scaled.height,
+			original.width, original.height,
+			getPosition().x, getPosition().y,
+			scaled.width, scaled.height,
 			0);
 	}
 	else {
-		al_draw_bitmap(this->bitmap, this->position.x, this->position.y, 0);
+		al_draw_bitmap(bitmap, position.x, position.y, 0);
 	}
 }
 
+void Bitmap::setTarget() const {
+	al_set_target_bitmap(bitmap);
+}
+
 Position const& Bitmap::getPosition() const {
-	return this->position;
+	return position;
 }
 
 Size const& Bitmap::getOriginalSize() const {
-	return this->original;
+	return original;
 }
 
 Size const& Bitmap::getScaledSize() const {
-	return this->scaled;
+	return scaled;
 }
 
 bool Bitmap::isPositionInBitmapPosition(Position const& other) const {
-	bool isX = this->getPosition().x < other.x && other.x < (this->getPosition().x + this->scaled.width);
-	bool isY = this->getPosition().y < other.y && other.y < (this->getPosition().y + this->scaled.height);
+	bool isX = getPosition().x < other.x && other.x < (getPosition().x + scaled.width);
+	bool isY = getPosition().y < other.y && other.y < (getPosition().y + scaled.height);
 
 	return (isX && isY);
 }

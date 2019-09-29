@@ -3,6 +3,7 @@
 #include <core_export.h>
 #include <string>
 #include <vector>
+#include <map>
 
 extern "C" {
 	struct ALLEGRO_BITMAP;
@@ -14,6 +15,8 @@ namespace json11 {
 
 namespace cl {
 	namespace core {
+		class Bitmap;
+		struct Position;
 		typedef std::vector<uint16_t> Data;
 
 		class CORE_EXPORT Layer {
@@ -38,11 +41,20 @@ namespace cl {
 		class CORE_EXPORT TileSet {
 		public:
 			TileSet(json11::Json const* structure);
+			virtual ~TileSet();
 			std::string const& getImageFile() const;
+			uint32_t getFirstGid() const;
+			uint32_t getTilesCount() const;
+			uint32_t getTileHeight() const;
+			uint32_t getTileWidth() const;
+			uint32_t getColumns() const;
+			uint32_t getSpacing() const;
+			ALLEGRO_BITMAP* getBitmapAt(uint32_t) const;
 
 		private:
 			std::string imageFile;
 			json11::Json const* structure;
+			ALLEGRO_BITMAP* map;
 		};
 
 		typedef std::vector<TileSet> TileSets;
@@ -52,6 +64,7 @@ namespace cl {
 			TileMap(std::string const& fileName);
 			virtual ~TileMap();
 			void load();
+			void createMap();
 			uint32_t getHeight() const;
 			uint32_t getWidth() const;
 			uint32_t getTileHeight() const;
@@ -59,15 +72,19 @@ namespace cl {
 			bool isInfinite() const;
 			Layers const& getLayers() const;
 			TileSets const& getTileSets() const;
+			ALLEGRO_BITMAP* getMap() const;
+			void draw(Position const& position) const;
 
 
 		private:
-			ALLEGRO_BITMAP* map;
 			std::string const fileName;
 			json11::Json* structure;
+			Bitmap* map;
 			Layers layers;
 			TileSets tileSets;
-
 		};
+
+		typedef std::map<uint32_t, ALLEGRO_BITMAP*> cache;
+		static cache Cache;
 	}
 }

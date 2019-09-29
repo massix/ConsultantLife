@@ -68,6 +68,10 @@ void Game::mainLoop() {
 	SpriteSheet pinkConsultant("resources/pink_consultant.json");
 	Bitmap bossBitmap("resources/BossWalking_01.png");
 	
+	TileMap t("resources/sophia_small.json");
+	t.load();
+	t.createMap();
+	
 	bossBitmap.scaleWithFactor(5.0);
 	basicConsultant.load();
 	pinkConsultant.load();
@@ -170,8 +174,9 @@ void Game::mainLoop() {
 			if (debugColor.blue < 10) debugColor.blue = 10;
 
 			if (eq.isEmpty()) {
-				al_set_target_bitmap(al_get_backbuffer(Display::getDisplay()));
+				Display::setTarget();
 				al_clear_to_color(al_map_rgb(0, 0, 0));
+				t.draw(Position{ 0, 110 });
 				al_draw_text(font,
 							 al_map_rgb(255, 0, 0),
 							 textPosition.x,
@@ -198,8 +203,8 @@ void Game::mainLoop() {
 							 debugStringHer.str().c_str());
 
 				bossBitmap.draw(bossPosition);
-				pinkConsultant.drawFrame(herAnimations[herIndex], herCurrentFrame, Position{ 48, 200 });
-				basicConsultant.drawFrame(hisAnimations[hisIndex], hisCurrentFrame, Position{ 140, 200 });
+				pinkConsultant.drawFrame(herAnimations[herIndex], herCurrentFrame, Position{ 400, 40 });
+				basicConsultant.drawFrame(hisAnimations[hisIndex], hisCurrentFrame, Position{ 460, 40 });
 				Display::flip();
 			}
 		} else if (animationTimer == e.getRawEvent()->timer.source) {

@@ -13,6 +13,8 @@ namespace cl {
 		class CORE_EXPORT Bitmap {
 		public:
 			Bitmap(std::string const& filename);
+			Bitmap(uint32_t w, uint32_t h);
+			Bitmap(ALLEGRO_BITMAP* bitmap);
 			virtual ~Bitmap();
 
 			ALLEGRO_BITMAP* getRaw();
@@ -23,6 +25,9 @@ namespace cl {
 			Position const & getPosition() const;
 			Size const& getOriginalSize() const;
 			Size const& getScaledSize() const;
+			void setTarget() const;
+			void setOwner(bool);
+			bool isOwner() const;
 
 			bool isPositionInBitmapPosition(Position const& other) const;
 
@@ -34,6 +39,8 @@ namespace cl {
 			Position position;
 			Size original;
 			Size scaled;
+
+			bool owner;
 
 			ALLEGRO_BITMAP* bitmap;
 		};
