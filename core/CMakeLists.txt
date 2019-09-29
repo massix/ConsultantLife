@@ -1,3 +1,4 @@
+
 file(GLOB core_SOURCES "src/*.cpp")
 add_library(core SHARED ${core_SOURCES})
 

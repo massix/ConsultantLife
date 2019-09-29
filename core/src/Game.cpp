@@ -7,6 +7,7 @@
 #include <core/Display.h>
 #include <core/Timer.h>
 #include <core/SpriteSheet.h>
+#include <core/TileMap.h>
 #include <allegro5/allegro.h>
 #include <allegro5/allegro_native_dialog.h>
 #include <allegro5/allegro_image.h>
@@ -107,15 +108,26 @@ void Game::mainLoop() {
 	eq.registerForEvent(ALLEGRO_EVENT_TIMER, [&](Event& e) {
 		if (mainTimer == e.getRawEvent()->timer.source) {
 			std::ostringstream debugStringTop;
-			debugStringTop << "Debug - Shift=" << heldKeys.shiftKey << ", R=" << heldKeys.rKey << ", G=" << heldKeys.gKey << ", B=" << heldKeys.bKey << "  ";
-			debugStringTop << "RGB(" << float(debugColor.red) << ", " << float(debugColor.green) << ", " << float(debugColor.blue) << ") ";
+			debugStringTop 
+				<< "Debug - Shift=" << heldKeys.shiftKey 
+				<< ", R=" << heldKeys.rKey 
+				<< ", G=" << heldKeys.gKey 
+				<< ", B=" << heldKeys.bKey << "  ";
+			debugStringTop 
+				<< "RGB(" << float(debugColor.red) 
+				<< ", " << float(debugColor.green) 
+				<< ", " << float(debugColor.blue) << ") ";
 			debugStringTop << "Timer: " << e.getRawEvent()->timer.count;
 
 			std::ostringstream debugStringHim;
-			debugStringHim << "His current animation: " << hisAnimations[hisIndex].getName() << "(" << (int) hisIndex << ")";
+			debugStringHim 
+				<< "His current animation: " << hisAnimations[hisIndex].getName() 
+				<< "(" << (int) hisIndex << ")";
 
 			std::ostringstream debugStringHer;
-			debugStringHer << "Her current animation: " << herAnimations[herIndex].getName() << "(" << (int) herIndex << ")";
+			debugStringHer 
+				<< "Her current animation: " << herAnimations[herIndex].getName() 
+				<< "(" << (int) herIndex << ")";
 
 			float deltaR = 0;
 			float deltaG = 0;
