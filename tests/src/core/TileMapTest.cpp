@@ -1,17 +1,17 @@
 #include <core/TileMap.h>
-#include <iostream>
-#include <sstream>
-
 #include <gtest/gtest.h>
-
-#ifndef RESOURCES_DIRECTORY
-#define RESOURCES_DIRECTORY "resources"
-#endif // !RESOURCES_DIRECTORY
+#include <allegro5/allegro.h>
+#include <allegro5/allegro_image.h>
 
 class TileMapTest : public testing::Test {
 protected:
+	TileMapTest() {
+		al_init();
+		al_init_image_addon();
+	}
+
 	void SetUp() override {
-		t = new cl::core::TileMap(std::string(RESOURCES_DIRECTORY) + "/sophia_small.json");
+		t = new cl::core::TileMap("resources/sophia_small.json");
 		t->load();
 	}
 
